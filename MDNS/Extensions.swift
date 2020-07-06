@@ -35,13 +35,13 @@ class ScanedResultModel {
 
 extension UILabel {
     func setUpText(title: String, value: String) {
-        let titleAtribute: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font : UIFont(name: "Helvetica-Bold", size: 18.0) ?? UIFont.boldSystemFont(ofSize: 14.0), NSAttributedString.Key.foregroundColor : UIColor.black]
-        let valueAtribute: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font : UIFont(name: "Helvetica", size: 18.0) ?? UIFont.systemFont(ofSize: 12.0) , NSAttributedString.Key.foregroundColor : UIColor.darkGray]
+        let titleAtribute: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font : UIFont(name: "Helvetica-Bold", size: 16.0) ?? UIFont.boldSystemFont(ofSize: 14.0), NSAttributedString.Key.foregroundColor : UIColor.black]
+        let valueAtribute: [NSAttributedString.Key : Any] = [NSAttributedString.Key.font : UIFont(name: "Helvetica", size: 16.0) ?? UIFont.systemFont(ofSize: 12.0) , NSAttributedString.Key.foregroundColor : UIColor.darkGray]
         
         let formattedString = NSMutableAttributedString(string: "")
         let titleString = NSMutableAttributedString(string: title, attributes: titleAtribute)
         formattedString.append(titleString)
-        formattedString.append(NSAttributedString(string: "\n\t"))
+        formattedString.append(NSAttributedString(string: "\t: "))
         
         let valueString = NSMutableAttributedString(string: value, attributes: valueAtribute)
         formattedString.append(valueString)

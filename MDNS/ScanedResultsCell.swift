@@ -26,9 +26,9 @@ class ScanedResultsCell: UITableViewCell {
     }
     
     func setDetails(detail: ScanedResultModel) {
-        self.serviceName.setUpText(title: "Service Name", value: detail.serviceName ?? "")
-        self.serviceType.setUpText(title: "Service Type", value: detail.serviceType ?? "")
-        self.ipAddress.setUpText(title: "IP Address", value: detail.ipAddress ?? "")
-        self.portNumber.setUpText(title: "Port Number", value: detail.portNumber ?? "")
+        self.serviceName.setUpText(title: "Name", value: detail.serviceName ?? "")
+        self.serviceType.setUpText(title: "Type", value: detail.serviceType ?? "")
+        self.ipAddress.setUpText(title: "  IP  ", value: detail.ipAddress ?? "")
+        self.portNumber.setUpText(title: "Port", value: detail.portNumber ?? "")
     }
 }

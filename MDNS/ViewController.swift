@@ -36,7 +36,6 @@ class ViewController: UIViewController {
     }
     //To setup Page
     func pageSetup() {
-        self.view.backgroundColor = .lightText
         //Setup Buttons
         self.publish.layer.cornerRadius = 15.0
         self.publish.clipsToBounds = true
