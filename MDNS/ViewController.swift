@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import Network
 class ViewController: UIViewController {
 
     //MARK: Outlets
@@ -18,11 +18,11 @@ class ViewController: UIViewController {
     //MARK: Variables
     var netServicePublish = NetService()
     var netServiceBrowserScan = NetServiceBrowser()
-    
+    var isNetServicePublishing: Bool!
+    var isNetServiceBrowserScaning: Bool!
     //To store the avilable services
     var services: [NetService] = []  {
         didSet {
-            print("#services Count = \(services.count)")
             self.setUpResolvedServices()
         }
     }
@@ -77,7 +77,6 @@ class ViewController: UIViewController {
 extension ViewController {
     //To check the resolved status
     func updateServices() {
-        print("self.services.count = \(self.services.count)")
         for service in self.services {
             if service.port == -1 {
                 print("service \(service.name) of type \(service.type)" +
@@ -93,26 +92,32 @@ extension ViewController {
         self.resolvedServices.removeAll()
         for service in self.services {
             if service.port != -1 {
-                var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-                guard let data = service.addresses?.first else { return }
-                do {
-                    try data.withUnsafeBytes { (pointer:UnsafePointer<sockaddr>) -> Void in
-                        guard getnameinfo(pointer, socklen_t(data.count), &hostname, socklen_t(hostname.count), nil, 0, NI_NUMERICHOST) == 0 else {
-                            throw NSError(domain: "domain", code: 0, userInfo: ["error":"unable to get ip address"])
-                        }
-                    }
-                } catch {
-                    print(error)
-                    return
-                }
-                let address = String(cString:hostname)
-                
+                let address = self.convertIPAddress(datas: service.addresses ?? [])
                 let resolvedSerivceObj = ScanedResultModel.init(serviceName: service.name, serviceType: service.type, ipAddress: "\(address)", portNumber: "\(service.port)", netService: service)
-                resolvedServices.append(resolvedSerivceObj)
+                self.resolvedServices.append(resolvedSerivceObj)
             }
         }
-        print("#resolveedServices : \(resolvedServices) : resolveedServices.Count : \(resolvedServices.count)")
         self.scanedResults.reloadData()
+    }
+    // MARK:- Convert IP Address form Data
+    func convertIPAddress(datas:[Data]) -> String {
+        var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+        for data in datas {
+            data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Void in
+                let sockaddrPtr = pointer.bindMemory(to: sockaddr.self)
+                guard let unsafePtr = sockaddrPtr.baseAddress else { return }
+                guard getnameinfo(unsafePtr, socklen_t(data.count), &hostname, socklen_t(hostname.count), nil, 0, NI_NUMERICHOST) == 0 else {
+                    return
+                }
+            }
+            let ipAddress = String(cString:hostname)
+            if let _ = IPv4Address(ipAddress) {
+                if ipAddress != "127.0.0.1" {
+                    return ipAddress
+                }
+            }
+        }
+        return ""
     }
     //To animate button
     func animateButton(sender: UIButton) {
@@ -171,10 +176,6 @@ extension ViewController : NetServiceBrowserDelegate {
         print("didRemove")
         if let ix = self.services.firstIndex(of: service) {
             self.services.remove(at: ix)
-            print("removing a service")
-            if !moreComing {
-                self.updateServices()
-            }
         }
     }
     func netServiceBrowser(_ browser: NetServiceBrowser, didFindDomain domainString: String, moreComing: Bool) {
